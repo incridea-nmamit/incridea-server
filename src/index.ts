@@ -3,19 +3,12 @@ import bodyParser from "body-parser";
 import cors from "cors";
 import express from "express";
 import { createYoga } from "graphql-yoga";
-
-import { config } from "~/cloudinary/config";
-import { config as easterConfig } from "~/cloudinary/easterConfig";
-import { config as idUploadConfig } from "~/cloudinary/idUpload";
-import { uploader as imageUpload } from "~/cloudinary/upload";
+import { createRouteHandler } from "uploadthing/express";
 import { context } from "~/context";
 import { env } from "~/env";
 import { schema } from "~/schema";
 import { handler as razorpayCapture } from "~/webhook/capture";
-
-const { upload } = config;
-const { upload: easterUpload } = easterConfig;
-const { upload: idUpload } = idUploadConfig;
+import { uploadRouter } from "./uploadthing/FileRouter";
 
 const yoga = createYoga({
   context,
@@ -24,7 +17,6 @@ const yoga = createYoga({
 });
 
 const app = express();
-
 app.use(
   cors({
     origin: env.FRONTEND_URL,
@@ -40,9 +32,13 @@ app.get("/", (_req, res) => {
 
 app.use("/graphql", yoga.requestListener);
 app.post("/webhook/capture", razorpayCapture);
-app.post("/cloudinary/upload/:eventName", upload.single("image"), imageUpload);
-app.post("/easter-egg/upload", easterUpload.single("image"), imageUpload);
-app.post("/id/upload", idUpload.single("image"), imageUpload);
+app.use(
+  "/uploadthing",
+  createRouteHandler({
+    router: uploadRouter,
+    config: { token: env.UPLOADTHING_SECRET },
+  }),
+);
 
 app.listen(env.PORT, () => {
   console.log(`🚀 Server ready at: http://localhost:4000/graphql`);

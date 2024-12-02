@@ -47,6 +47,7 @@
     "node-html-to-image": "^5.0.0",
     "nodemailer": "^6.9.16",
     "razorpay": "^2.9.5",
+    "uploadthing": "^7.3.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {

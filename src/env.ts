@@ -33,10 +33,7 @@ export const env = createEnv({
     RAZORPAY_KEY: z.string(),
     RAZORPAY_SECRET: z.string(),
     RAZORPAY_WEBHOOK_SECRET: z.string(),
-    // To be migrated to the `uploadthing`
-    CLOUDINARY_CLOUD_NAME: z.string(),
-    CLOUDINARY_API_KEY: z.string(),
-    CLOUDINARY_API_SECRET: z.string(),
+    UPLOADTHING_SECRET: z.string(),
   },
 
   /**
@@ -74,10 +71,7 @@ export const env = createEnv({
     RAZORPAY_KEY: process.env.RAZORPAY_KEY,
     RAZORPAY_SECRET: process.env.RAZORPAY_SECRET,
     RAZORPAY_WEBHOOK_SECRET: process.env.RAZORPAY_WEBHOOK_SECRET,
-    // To be migrated to the `uploadthing`
-    CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME,
-    CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY,
-    CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET,
+    UPLOADTHING_SECRET: process.env.UPLOADTHING_SECRET,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially
