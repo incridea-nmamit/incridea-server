@@ -57,39 +57,40 @@ builder.mutationField("createQuestion", (t) =>
   }),
 );
 
-builder.mutationField("updateQuizStatus", (t) =>
-  t.prismaField({
-    type: "Quiz",
-    args: {
-      quizId: t.arg({ type: "String", required: true }),
-      allowAttempts: t.arg({ type: "Boolean", required: true }),
-      password: t.arg({ type: "String", required: true }),
-    },
-    errors: {
-      types: [Error],
-    },
-    resolve: async (query, root, args, ctx, info) => {
-      //Get user from context
-      const user = await ctx.user;
-      if (!user) {
-        throw new Error("Not authenticated");
-      }
+// TODO:  Duplicate mutation Error
+// builder.mutationField("updateQuizStatus", (t) =>
+//   t.prismaField({
+//     type: "Quiz",
+//     args: {
+//       quizId: t.arg({ type: "String", required: true }),
+//       allowAttempts: t.arg({ type: "Boolean", required: true }),
+//       password: t.arg({ type: "String", required: true }),
+//     },
+//     errors: {
+//       types: [Error],
+//     },
+//     resolve: async (query, root, args, ctx, info) => {
+//       //Get user from context
+//       const user = await ctx.user;
+//       if (!user) {
+//         throw new Error("Not authenticated");
+//       }
 
-      if (user.role !== "ORGANIZER")
-        throw new Error("Not allowed to perform this action");
+//       if (user.role !== "ORGANIZER")
+//         throw new Error("Not allowed to perform this action");
 
-      //create accommodation request
-      const data = await ctx.prisma.quiz.update({
-        where: {
-          id: args.quizId,
-        },
-        data: {
-          allowAttempts: args.allowAttempts,
-          password: args.password,
-        },
-        ...query,
-      });
-      return data;
-    },
-  }),
-);
+//       //create accommodation request
+//       const data = await ctx.prisma.quiz.update({
+//         where: {
+//           id: args.quizId,
+//         },
+//         data: {
+//           allowAttempts: args.allowAttempts,
+//           password: args.password,
+//         },
+//         ...query,
+//       });
+//       return data;
+//     },
+//   }),
+// );

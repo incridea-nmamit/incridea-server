@@ -53,6 +53,7 @@
     "nodemailer": "^6.9.16",
     "razorpay": "^2.9.5",
     "uuid": "^11.0.3",
+    "uploadthing": "^7.3.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {
