@@ -1,33 +1,49 @@
+import { env } from "~/env";
 import jwt from "jsonwebtoken";
-export const AUTH_SECRET = process.env.AUTH_SECRET as string;
+import { z } from "zod";
+
+const AUTH_SECRET = env.AUTH_SECRET;
 
 export const secrets = {
   JWT_ACCESS_SECRET: AUTH_SECRET + "access",
   JWT_REFRESH_SECRET: AUTH_SECRET + "refresh",
   JWT_VERIFICATION_SECRET: AUTH_SECRET + "verification",
   JWT_PASSWORD_RESET_SECRET: AUTH_SECRET + "password-reset",
-};
+} as const;
 
-export function generateAccessToken(user: { id: any }) {
-  return jwt.sign({ userId: user.id }, secrets.JWT_ACCESS_SECRET as string, {
-    expiresIn: "1d",
-  });
-}
+export const accessTokenZ = z.object({
+  userId: z.number(),
+});
+export type AccessToken = z.infer<typeof accessTokenZ>;
+const generateAccessToken = (user: { id: number }) =>
+  jwt.sign(
+    {
+      userId: user.id,
+    } satisfies AccessToken,
+    secrets.JWT_ACCESS_SECRET,
+    {
+      expiresIn: "1d",
+    },
+  );
 
-export function generateRefreshToken(user: { id: any }, jti: any) {
-  return jwt.sign(
+export const refreshTokenZ = z.object({
+  userId: z.number(),
+  jti: z.string(),
+});
+export type RefreshToken = z.infer<typeof refreshTokenZ>;
+const generateRefreshToken = (user: { id: number }, jti: string) =>
+  jwt.sign(
     {
       userId: user.id,
       jti,
-    },
-    secrets.JWT_REFRESH_SECRET as string,
+    } satisfies RefreshToken,
+    secrets.JWT_REFRESH_SECRET,
     {
       expiresIn: "7d",
-    }
+    },
   );
-}
 
-export function generateTokens(user: { id: any }, jti: any) {
+export const generateTokens = (user: { id: number }, jti: string) => {
   const accessToken = generateAccessToken(user);
   const refreshToken = generateRefreshToken(user, jti);
 
@@ -35,30 +51,38 @@ export function generateTokens(user: { id: any }, jti: any) {
     accessToken,
     refreshToken,
   };
-}
+};
 
-export function generateVerificationToken(user: { id: any }, jti: any) {
-  return jwt.sign(
+export const verificationTokenZ = z.object({
+  userId: z.number(),
+  jti: z.string(),
+});
+export type VerificationToken = z.infer<typeof verificationTokenZ>;
+export const generateVerificationToken = (user: { id: number }, jti: string) =>
+  jwt.sign(
     {
       userId: user.id,
       jti,
-    },
-    secrets.JWT_VERIFICATION_SECRET as string,
+    } satisfies VerificationToken,
+    secrets.JWT_VERIFICATION_SECRET,
     {
       expiresIn: "1d",
-    }
-  ) as string;
-}
+    },
+  );
 
-export function generatePasswordResetToken(user: { id: any }, jti: any) {
-  return jwt.sign(
+export const passwordResetTokenZ = z.object({
+  userId: z.number(),
+  jti: z.string(),
+});
+export type PasswordResetToken = z.infer<typeof passwordResetTokenZ>;
+export const generatePasswordResetToken = (user: { id: number }, jti: string) =>
+  jwt.sign(
     {
       userId: user.id,
       jti,
-    },
-    secrets.JWT_PASSWORD_RESET_SECRET as string,
+    } satisfies PasswordResetToken,
+    secrets.JWT_PASSWORD_RESET_SECRET,
     {
       expiresIn: "1d",
-    }
-  ) as string;
-}
+    },
+  );

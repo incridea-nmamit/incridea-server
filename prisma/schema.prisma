@@ -88,7 +88,7 @@ model Branch {
     Event      Event[]
 }
 
-// User many-to-many  Branch 
+// User many-to-many  Branch
 
 // BranchRep userId-BranchID
 
@@ -531,6 +531,7 @@ enum LAAnswerStatus {
     FALSE
 }
 
+// Pothos type not formed
 enum VerificationType {
     RESET_PASSWORD
     EMAIL_VERIFICATION

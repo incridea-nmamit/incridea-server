@@ -1,30 +1,34 @@
-import { YogaInitialContext } from "@graphql-yoga/node";
+import { type YogaInitialContext } from "@graphql-yoga/node";
 import { type PrismaClient } from "@prisma/client";
-import { JwtPayload, verify } from "jsonwebtoken";
-import { secrets } from "./jwt";
+import jwt, { type JwtPayload } from "jsonwebtoken";
 
-export async function authenticateUser(
+import { accessTokenZ, secrets } from "~/utils/auth/jwt";
+
+const authenticateUser = async (
   prisma: PrismaClient,
-  request: YogaInitialContext["request"]
-) {
-  const header = request.headers.get("authorization");
-  if (header !== null) {
-    try {
-      const token = header.split(" ")[1];
-      const tokenPayload = verify(
-        token,
-        secrets.JWT_ACCESS_SECRET as string
-      ) as JwtPayload;
+  request: YogaInitialContext["request"],
+) => {
+  const authHeader = request.headers.get("authorization");
+  if (!authHeader) return null;
 
-      const userId = tokenPayload.userId;
+  const token = authHeader.replace("Bearer ", "");
+  if (!token) return null;
 
-      return await prisma.user.findUnique({
-        where: { id: userId },
-        include: { College: true },
-      });
-    } catch (error) {
-      return null;
-    }
+  try {
+    const payload = jwt.verify(token, secrets.JWT_ACCESS_SECRET) as JwtPayload;
+
+    const { success, data: typedPayload } = accessTokenZ.safeParse(payload);
+    if (!success) return null;
+
+    return await prisma.user.findUnique({
+      where: {
+        id: typedPayload.userId,
+      },
+      include: { College: true },
+    });
+  } catch (error) {
+    console.log(error);
   }
-  return null;
-}
+};
+
+export { authenticateUser };

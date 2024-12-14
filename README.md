@@ -6,34 +6,32 @@
 
 ### Docs
 
-
 - [**GraphQL Yoga**](https://the-guild.dev/graphql/yoga-server/docs/)
 - [**Typescript**](https://www.typescriptlang.org/docs/)
 - [**Prisma**](https://www.prisma.io/docs/)
 - [**Pothos**](https://pothos-graphql.dev/docs/guide/)
-
 
 ### Local setup
 
 1. Clone the repository
 
 ```bash
-git clone https://github.com/incridea-23/incridea-server.git
+git clone https://github.com/incridea-nmamit/incridea-server.git
 ```
 
-3. Install all dependencies
+2. Install all dependencies
 
 ```bash
 npm install
 ```
 
-2. Generate Prisma Clinet 
+3. Generate Prisma Clinet
 
 ```bash
 npx prisma generate
 ```
 
-3. Run the development server:
+4. Run the development server:
 
 ```bash
 npm run dev

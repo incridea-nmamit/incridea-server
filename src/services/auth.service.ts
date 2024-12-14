@@ -1,6 +1,8 @@
-import { hashToken } from "../utils/auth/hashToken";
-import { prisma } from "../utils/db/prisma";
-import * as cron from "node-cron";
+import cron from "node-cron";
+
+import { hashToken } from "~/utils/auth/hashToken";
+import { prisma } from "~/utils/db";
+
 // used when we create a refresh token.
 export function addRefreshTokenToWhitelist({
   jti,
@@ -35,17 +37,20 @@ export function revokeRefreshToken(id: string) {
     where: {
       id,
     },
-    data:{
+    data: {
       revoked: true,
-    }
+    },
   });
 }
 
-export function revokeTokens(userId: number) {
-  return prisma.refreshToken.deleteMany({
+export function revokeAllRefreshTokens(userId: number) {
+  return prisma.refreshToken.updateMany({
     where: {
-      userId,
-    }
+      userId: userId,
+    },
+    data: {
+      revoked: true,
+    },
   });
 }
 
@@ -74,9 +79,9 @@ export function revokeVerificationToken(id: string) {
     where: {
       id,
     },
-    data:{
+    data: {
       revoked: true,
-    }
+    },
   });
 }
 
@@ -106,24 +111,24 @@ export function revokePasswordResetToken(id: string) {
     where: {
       id,
     },
-    data:{
+    data: {
       revoked: true,
-    }
+    },
   });
 }
 
-
-//node-cron setup to delete revoked token every 12 hours
+// eslint-disable-next-line @typescript-eslint/no-misused-promises
 cron.schedule("0 */12 * * *", async () => {
-    await prisma.refreshToken.deleteMany({
-      where: {
-        revoked: true,
-      },
-    });
-    await prisma.verificationToken.deleteMany({
-      where: {
-        revoked: true,
-      },
-    });
-    console.log("cron job running: deleted revoked tokens");
+  //node-cron setup to delete revoked token every 12 hours
+  await prisma.refreshToken.deleteMany({
+    where: {
+      revoked: true,
+    },
+  });
+  await prisma.verificationToken.deleteMany({
+    where: {
+      revoked: true,
+    },
+  });
+  console.log("cron job running: deleted revoked tokens");
 });

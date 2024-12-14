@@ -1,7 +1,0 @@
-{
-  "cSpell.words": ["Incridea", "pothos", "razorpay", "uuidv"],
-  "githubPullRequests.ignoredPullRequestBranches": [
-    "main"
-  ],
-  "compile-hero.disable-compile-files-on-did-save-code": false
-}

@@ -1,71 +1,93 @@
 {
   "name": "incridea-server",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "ts-node-dev --respawn --transpile-only --exit-child --watch src src/index.ts",
-    "start": "node dist/src/index.js",
-    "build": "npm i --legacy-peer-deps && npx prisma generate && tsc && cp -r src/templates dist/src/templates ",
-    "type": "tsc --noEmit"
-  },
+  "private": true,
+  "type": "module",
   "prisma": {
     "seed": "tsx prisma/seed.ts"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/incridea-23/incridea-server.git"
+  "scripts": {
+    "db:generate": "prisma migrate dev",
+    "db:push": "prisma db push",
+    "db:studio": "prisma studio",
+    "db:reset": "prisma db push --force-reset && prisma db seed",
+    "dev": "tsx watch src/index.ts",
+    "type": "tsc --noEmit",
+    "start": "NODE_ENV=production tsx dist/src/index.js",
+    "build": "prisma generate && tsx src/env.ts && eslint --cache . && tsc && cp -r src/templates dist/src",
+    "lint": "eslint --cache .",
+    "lint:fix": "eslint --fix --cache .",
+    "postinstall": "prisma generate",
+    "mock": "tsx prisma/mock.ts",
+    "format:check": "prettier --check --cache .",
+    "format:write": "prettier --write --cache .",
+    "prepare": "husky",
+    "knip": "knip --cache"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/incridea-23/incridea-server/issues"
-  },
-  "homepage": "https://github.com/incridea-23/incridea-server#readme",
-  "devDependencies": {
-    "@types/bcryptjs": "^2.4.2",
-    "@types/cors": "^2.8.13",
-    "@types/express": "^4.17.17",
-    "@types/jsonwebtoken": "^9.0.1",
-    "@types/multer": "^1.4.7",
-    "@types/node": "^18.11.19",
-    "@types/uuid": "^9.0.0",
-    "prisma": "^5.22.0",
-    "ts-node-dev": "^2.0.0",
-    "typescript": "^4.9.5"
+  "lint-staged": {
+    "**/(*.ts|*.tsx)": [
+      "eslint",
+      "prettier --write --ignore-unknown --cache"
+    ],
+    "**/!(*.ts|*.tsx)": [
+      "prettier --write --ignore-unknown --cache"
+    ]
   },
   "dependencies": {
-    "@envelop/depth-limit": "^2.0.6",
+    "@escape.tech/graphql-armor-block-field-suggestions": "^3.0.0",
+    "@escape.tech/graphql-armor-cost-limit": "^2.4.0",
+    "@escape.tech/graphql-armor-max-aliases": "^2.6.0",
+    "@escape.tech/graphql-armor-max-depth": "^2.4.0",
+    "@escape.tech/graphql-armor-max-directives": "^2.3.0",
+    "@escape.tech/graphql-armor-max-tokens": "^2.5.0",
     "@graphql-yoga/node": "^3.9.1",
+    "@graphql-yoga/plugin-disable-introspection": "^2.10.4",
     "@pothos/core": "^4.3.0",
     "@pothos/plugin-errors": "^4.2.0",
-    "@pothos/plugin-prisma": "^4.3.1",
+    "@pothos/plugin-prisma": "^4.4.0",
     "@pothos/plugin-relay": "^4.3.0",
     "@pothos/plugin-smart-subscriptions": "^4.1.1",
-    "@prisma/client": "^5.22.0",
-    "@types/node-cron": "^3.0.11",
-    "@types/nodemailer": "^6.4.17",
+    "@prisma/client": "^6.0.1",
+    "@t3-oss/env-core": "^0.11.1",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.3",
-    "cloudinary": "^1.41.3",
     "cors": "^2.8.5",
-    "crypto": "^1.0.1",
+    "dotenv": "^16.4.7",
     "express": "^4.21.1",
     "graphql": "^16.9.0",
-    "graphql-scalars": "^1.23.0",
+    "graphql-scalars": "^1.24.0",
     "graphql-subscriptions": "^3.0.0",
-    "graphql-yoga": "^5.10.3",
-    "i": "^0.3.7",
+    "graphql-yoga": "^5.10.4",
     "jsonwebtoken": "^9.0.2",
-    "multer": "^1.4.5-lts.1",
-    "multer-storage-cloudinary": "^4.0.0",
     "node-cron": "^3.0.3",
     "node-html-to-image": "^5.0.0",
     "nodemailer": "^6.9.16",
-    "npm": "^9.6.4",
     "razorpay": "^2.9.5",
-    "uuid": "^9.0.0"
+    "uploadthing": "^7.3.0",
+    "uuid": "^11.0.3",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@trivago/prettier-plugin-sort-imports": "^4.3.0",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/cors": "^2.8.17",
+    "@types/eslint": "^8.56.10",
+    "@types/express": "^5.0.0",
+    "@types/jsonwebtoken": "^9.0.7",
+    "@types/multer": "^1.4.12",
+    "@types/node": "^22.10.1",
+    "@types/node-cron": "^3.0.11",
+    "@types/nodemailer": "^6.4.17",
+    "@types/uuid": "^10.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.17.0",
+    "@typescript-eslint/parser": "^8.17.0",
+    "eslint": "8.57.1",
+    "husky": "^9.1.7",
+    "knip": "^5.39.1",
+    "lint-staged": "^15.2.10",
+    "prettier": "^3.4.2",
+    "prisma": "^6.0.1",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
   }
 }

@@ -1,43 +1,21 @@
-import { createYoga } from "graphql-yoga";
+import bodyParser from "body-parser";
 import cors from "cors";
 import express from "express";
-import { context } from "./context";
-import { schema } from "./schema";
-import bodyParser from "body-parser";
-import { handler as razorpayCapture } from "./webhook/capture";
-import { uploader as imageUpload } from "./cloudinary/upload";
-import { config } from "./cloudinary/config";
-import { config as easterConfig } from "./cloudinary/easterConfig";
-import { config as idUploadConfig } from "./cloudinary/idUpload";
-const { upload } = config;
-const { upload: easterUpload } = easterConfig;
-const { upload: idUpload } = idUploadConfig;
-// import "./certificate.ts";
-import { useDepthLimit } from "@envelop/depth-limit";
-const port = Number(process.env.API_PORT) || 4000;
-const yoga = createYoga({
-  context,
-  schema,
-  plugins: [useDepthLimit({ maxDepth: 7 })], //max depth allowed to avoid infinite nested queries
-});
+import { env } from "~/env";
+import { handler as razorpayCapture } from "~/razorpay/webhook";
+import { uploadThingHandler } from "~/uploadthing";
+import { yoga } from "~/graphql";
 
 const app = express();
 
-app.use(cors());
-
+app.use(cors({ origin: env.FRONTEND_URL }));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-
-app.get("/", (_req, res) => {
-  res.send("Hello Incridea");
-});
-
+app.use("/", express.static("public"));
 app.use("/graphql", yoga.requestListener);
 app.post("/webhook/capture", razorpayCapture);
-app.post("/cloudinary/upload/:eventName", upload.single("image"), imageUpload);
-app.post("/easter-egg/upload", easterUpload.single("image"), imageUpload);
-app.post("/id/upload", idUpload.single("image"), imageUpload);
+app.use("/uploadthing", uploadThingHandler);
 
-app.listen(port, () => {
-  console.log(`🚀 Server ready at: http://localhost:4000/graphql`);
-});
+app.listen(env.PORT, () =>
+  console.log(`🚀 Server ready at: http://localhost:4000/graphql`),
+);
