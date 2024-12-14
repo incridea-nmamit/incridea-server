@@ -57,3 +57,61 @@ builder.mutationField("addXP", (t) =>
     },
   }),
 );
+builder.mutationField("useReferralCode", (t) =>
+  t.prismaField({
+    type: "User",
+    args: {
+      referralCode: t.arg({ type: "String", required: true }),
+    },
+    errors: {
+      types: [Error],
+    },
+    resolve: async (query, root, args, ctx, info) => {
+      // Check if the user is authenticated
+      const user = await ctx.user;
+      if (!user) {
+        throw new Error("Not Authenticated");
+      }
+
+      // Extract referral user ID from the code
+      const referralUserId = args.referralCode.slice(-4);
+      if (isNaN(Number(referralUserId))) {
+        throw new Error("Invalid Referral code format.");
+      }
+      if (Number(referralUserId) === user.id) {
+        throw new Error(
+          "Invalid Referral code: You cannot use your own referral code.",
+        );
+      }
+
+      // Fetch referred user
+      const referredUser = await ctx.prisma.user.findUnique({
+        where: { id: Number(referralUserId) },
+      });
+
+      if (!referredUser) {
+        throw new Error("Invalid Referral code: User not found.");
+      }
+
+      // XP increment
+      const xpIncrement = 10;
+
+      // Update XP for the authenticated user
+      const updatedUser = await ctx.prisma.user.update({
+        where: { id: Number(user.id) },
+        data: { totalXp: user.totalXp + xpIncrement / 2 },
+        ...query,
+      });
+
+      // Update XP for the referred user
+      const updatedReferredUser = await ctx.prisma.user.update({
+        where: { id: Number(referralUserId) },
+        data: { totalXp: referredUser.totalXp + xpIncrement },
+        ...query,
+      });
+
+      // Return referred user data
+      return updatedReferredUser;
+    },
+  }),
+);
