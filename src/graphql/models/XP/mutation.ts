@@ -97,7 +97,7 @@ builder.mutationField("useReferralCode", (t) =>
       const xpIncrement = 10;
 
       // Update XP for the authenticated user
-      const updatedUser = await ctx.prisma.user.update({
+      await ctx.prisma.user.update({
         where: { id: Number(user.id) },
         data: { totalXp: user.totalXp + xpIncrement / 2 },
         ...query,
