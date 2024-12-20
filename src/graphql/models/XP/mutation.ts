@@ -110,7 +110,7 @@ builder.mutationField("useReferralCode", (t) =>
         ...query,
       });
 
-      // Return referred user data
+      // Return referred user Data
       return updatedReferredUser;
     },
   }),
