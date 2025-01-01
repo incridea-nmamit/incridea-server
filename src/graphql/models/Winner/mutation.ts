@@ -1,6 +1,7 @@
 import { WinnerType } from "@prisma/client";
 
 import { builder } from "~/graphql/builder";
+import { allocatePoints } from "./utils";
 
 builder.mutationField("createWinner", (t) =>
   t.prismaField({
@@ -36,6 +37,7 @@ builder.mutationField("createWinner", (t) =>
         },
         select: {
           category: true,
+          tier: true,
           Rounds: {
             select: {
               completed: true,
@@ -67,6 +69,7 @@ builder.mutationField("createWinner", (t) =>
         },
         include: {
           TeamMembers: true,
+          College: true,
         },
       });
 
@@ -90,64 +93,97 @@ builder.mutationField("createWinner", (t) =>
       if (winner) {
         throw new Error("Winner already exists");
       }
-      const data = await ctx.prisma.winners.create({
-        data: {
-          teamId: Number(args.teamId),
-          eventId: Number(args.eventId),
-          type: args.type,
-        },
-        ...query,
-      });
-      //check if winner level exists
-      const levelExists = await ctx.prisma.level.findFirst({
-        where: {
-          winnerId: data.id,
-        },
-      });
-      //get full team userId
-      const teamMembers = team.TeamMembers.map((member) => member.userId);
-      if (levelExists) {
-        //check if team members are already given xp points
-        const xp = await ctx.prisma.xP.findMany({
-          where: {
-            userId: {
-              in: teamMembers,
-            },
-            levelId: levelExists.id,
+
+      try {
+        const { data, collegeData } = await ctx.prisma.$transaction(
+          async (prisma) => {
+            const data = await ctx.prisma.winners.create({
+              data: {
+                teamId: Number(args.teamId),
+                eventId: Number(args.eventId),
+                type: args.type,
+              },
+              ...query,
+            });
+
+            const points = allocatePoints(event.tier, args.type);
+
+            const collegeData = await ctx.prisma.college.update({
+              where: { id: team.College?.id },
+              data: {
+                championshipPoints: {
+                  increment: Number(points),
+                },
+              },
+            });
+
+            //check if winner level exists
+            const levelExists = await ctx.prisma.level.findFirst({
+              where: {
+                winnerId: data.id,
+              },
+            });
+            //get full team userId
+            const teamMembers = team.TeamMembers.map((member) => member.userId);
+            if (levelExists) {
+              //check if team members are already given xp points
+              const xp = await ctx.prisma.xP.findMany({
+                where: {
+                  userId: {
+                    in: teamMembers,
+                  },
+                  levelId: levelExists.id,
+                },
+              });
+              if (xp.length == 0) {
+                //give xp points to all team members
+                await ctx.prisma.xP.createMany({
+                  data: teamMembers.map((userId) => ({
+                    userId,
+                    levelId: levelExists.id,
+                  })),
+                });
+              }
+            } else {
+              // give xp points for winning
+              let point =
+                args.type === "WINNER"
+                  ? 100
+                  : args.type === "RUNNER_UP"
+                    ? 75
+                    : 50;
+              if (event.category === "CORE") {
+                point =
+                  args.type === "WINNER"
+                    ? 150
+                    : args.type === "RUNNER_UP"
+                      ? 100
+                      : 75;
+              }
+              const level = await ctx.prisma.level.create({
+                data: {
+                  point: point,
+                  winnerId: data.id,
+                },
+              });
+              //give xp points to all team members
+              await ctx.prisma.xP.createMany({
+                data: teamMembers.map((userId) => ({
+                  userId,
+                  levelId: level.id,
+                })),
+              });
+            }
+            return { data, collegeData };
           },
-        });
-        if (xp.length == 0) {
-          //give xp points to all team members
-          await ctx.prisma.xP.createMany({
-            data: teamMembers.map((userId) => ({
-              userId,
-              levelId: levelExists.id,
-            })),
-          });
-        }
-      } else {
-        // give xp points for winning
-        let point =
-          args.type === "WINNER" ? 100 : args.type === "RUNNER_UP" ? 75 : 50;
-        if (event.category === "CORE") {
-          point =
-            args.type === "WINNER" ? 150 : args.type === "RUNNER_UP" ? 100 : 75;
-        }
-        const level = await ctx.prisma.level.create({
-          data: {
-            point: point,
-            winnerId: data.id,
-          },
-        });
-        //give xp points to all team members
-        await ctx.prisma.xP.createMany({
-          data: teamMembers.map((userId) => ({
-            userId,
-            levelId: level.id,
-          })),
-        });
+        );
+
+        await ctx.pubsub.publish("CHAMPIONSHIP_UPDATED", collegeData);
+
+        return data;
+      } catch (error) {
+        throw new Error("Winner could not be created, please try again");
       }
-      return data;
     },
   }),
 );
@@ -177,6 +213,7 @@ builder.mutationField("deleteWinner", (t) =>
         include: {
           Team: {
             select: {
+              College: true,
               TeamMembers: {
                 select: {
                   userId: true,
@@ -203,6 +240,7 @@ builder.mutationField("deleteWinner", (t) =>
           },
         },
         select: {
+          tier: true,
           Rounds: {
             select: {
               Judges: true,
@@ -225,38 +263,62 @@ builder.mutationField("deleteWinner", (t) =>
       ) {
         throw new Error("Not authorized");
       }
-      //delete winner xp points
-      const level = await ctx.prisma.level.findFirst({
-        where: {
-          winnerId: Number(args.id),
-        },
-      });
-      //get all team members id
-      const teamMembers = winner.Team.TeamMembers.map(
-        (member) => member.userId,
-      );
-      if (level) {
-        await ctx.prisma.xP.deleteMany({
-          where: {
-            userId: {
-              in: teamMembers,
-            },
-            levelId: level.id,
+
+      try {
+        const { data, collegeData } = await ctx.prisma.$transaction(
+          async (prisma) => {
+            //delete winner xp points
+            const level = await ctx.prisma.level.findFirst({
+              where: {
+                winnerId: Number(args.id),
+              },
+            });
+            //get all team members id
+            const teamMembers = winner.Team.TeamMembers.map(
+              (member) => member.userId,
+            );
+            if (level) {
+              await ctx.prisma.xP.deleteMany({
+                where: {
+                  userId: {
+                    in: teamMembers,
+                  },
+                  levelId: level.id,
+                },
+              });
+              await ctx.prisma.level.delete({
+                where: {
+                  id: level.id,
+                },
+              });
+            }
+
+            const points = allocatePoints(event.tier, winner.type);
+            const collegeData = await ctx.prisma.college.update({
+              where: { id: winner.Team.College?.id },
+              data: {
+                championshipPoints: {
+                  decrement: Number(points),
+                },
+              },
+            });
+
+            const data = await ctx.prisma.winners.delete({
+              where: {
+                id: Number(args.id),
+              },
+              ...query,
+            });
+            return { data, collegeData };
           },
-        });
-        await ctx.prisma.level.delete({
-          where: {
-            id: level.id,
-          },
-        });
+        );
+
+        await ctx.pubsub.publish(`CHAMPIONSHIP_UPDATED`, collegeData);
+
+        return data;
+      } catch (error) {
+        throw new Error("could not delete winner, please try again");
       }
-      const data = await ctx.prisma.winners.delete({
-        where: {
-          id: Number(args.id),
-        },
-        ...query,
-      });
-      return data;
     },
   }),
 );

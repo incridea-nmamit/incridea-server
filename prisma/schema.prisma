@@ -78,6 +78,8 @@ model College {
     updatedAt DateTime    @updatedAt
     Users     User[]
     type      CollegeType @default(ENGINEERING)
+    championshipPoints Int
+    Teams     Team[]
 }
 
 model Branch {
@@ -108,6 +110,7 @@ model Event {
     maxTeamSize      Int                @default(1)
     maxTeams         Int?
     published        Boolean            @default(false)
+    tier             EventTier          @default(GOLD)
     Branch           Branch             @relation(fields: [branchId], references: [id], onDelete: Restrict)
     Teams            Team[]
     Rounds           Round[]
@@ -120,9 +123,10 @@ model Event {
 }
 
 model Team {
-    id   Int    @id @default(autoincrement())
-    name String
-
+    id                Int    @id @default(autoincrement())
+    name              String
+    collegeId         Int?
+    College           College?            @relation(fields: [collegeId], references: [id], onDelete: Cascade)
     createdAt         DateTime            @default(now())
     updatedAt         DateTime            @updatedAt
     eventId           Int
@@ -142,6 +146,7 @@ model Team {
 
     @@unique([name, eventId])
     @@index([eventId, roundNo])
+    @@index([collegeId])
 }
 
 model Round {
@@ -549,6 +554,12 @@ enum EventCategory {
     NON_TECHNICAL
     CORE
     SPECIAL
+}
+
+enum EventTier {
+    GOLD
+    SILVER
+    BRONZE
 }
 
 enum CollegeType {

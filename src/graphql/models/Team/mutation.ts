@@ -90,6 +90,7 @@ builder.mutationField("createTeam", (t) =>
         data: {
           name: args.name,
           eventId: Number(args.eventId),
+          collegeId: Number(user.collegeId),
           TeamMembers: {
             create: {
               userId: user.id,
@@ -529,6 +530,7 @@ builder.mutationField("registerSoloEvent", (t) =>
         data: {
           name: user.id.toString(),
           eventId: Number(args.eventId),
+          collegeId: Number(user.collegeId),
           leaderId: user.id,
           confirmed: !isPaidEvent,
           TeamMembers: {
@@ -700,7 +702,7 @@ builder.mutationField("organizerAddTeamMember", (t) =>
       ) {
         throw new Error("Not authorized");
       }
-      if (!(user.College?.type === "ENGINEERING")) {
+      if (!(participant.College?.type === "ENGINEERING")) {
         if (
           !(await canRegister(
             participant.id,
@@ -760,6 +762,11 @@ builder.mutationField("organizerAddTeamMember", (t) =>
           },
           data: {
             leaderId: participant.id,
+            College: {
+              connect: {
+                id: participant.College?.id,
+              },
+            },
           },
         });
 
@@ -1139,7 +1146,7 @@ builder.mutationField("organizerRegisterSolo", (t) =>
         throw new Error(`No participant with id ${args.userId}`);
       }
 
-      if (!(user.College?.type === "ENGINEERING")) {
+      if (!(participant.College?.type === "ENGINEERING")) {
         if (
           !(await canRegister(
             participant.id,
@@ -1179,6 +1186,7 @@ builder.mutationField("organizerRegisterSolo", (t) =>
           attended: true,
           confirmed: true,
           leaderId: Number(args.userId),
+          collegeId: participant.collegeId,
           TeamMembers: {
             create: {
               userId: Number(args.userId),

@@ -12,5 +12,6 @@ builder.prismaObject("College", {
   fields: (t) => ({
     id: t.exposeID("id"),
     name: t.exposeString("name"),
+    championshipPoints: t.exposeInt("championshipPoints"),
   }),
 });

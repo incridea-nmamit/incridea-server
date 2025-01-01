@@ -12,6 +12,7 @@ const main = async () => {
     data: {
       name: "NMAM Institute of Technology",
       type: "ENGINEERING",
+      championshipPoints: 0,
     },
   });
 
@@ -73,6 +74,7 @@ const main = async () => {
       }),
       fees: 100,
       maxTeams: 10,
+      tier: "GOLD",
       minTeamSize: 2,
       maxTeamSize: 3,
       eventType: "INDIVIDUAL_MULTIPLE_ENTRY",
@@ -149,6 +151,11 @@ const main = async () => {
         },
       },
       leaderId: teamMembers[0].id,
+      College: {
+        connect: {
+          id: teamMembers[0].collegeId ?? undefined,
+        },
+      },
       TeamMembers: {
         createMany: {
           data: Array.from(teamMembers, (member) => ({

@@ -23,6 +23,7 @@ builder.mutationField("createCollege", (t) =>
         data: {
           name: args.name,
           details: args.details,
+          championshipPoints: 0,
         },
       });
     },
