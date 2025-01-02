@@ -178,7 +178,9 @@ builder.mutationField("createWinner", (t) =>
           },
         );
 
-        await ctx.pubsub.publish("CHAMPIONSHIP_UPDATED", collegeData);
+        await ctx.pubsub.publish("CHAMPIONSHIP_UPDATED", {
+          championshipUpdated: collegeData,
+        });
 
         return data;
       } catch (error) {
@@ -313,7 +315,16 @@ builder.mutationField("deleteWinner", (t) =>
           },
         );
 
-        await ctx.pubsub.publish(`CHAMPIONSHIP_UPDATED`, collegeData);
+        await ctx.pubsub
+          .publish("CHAMPIONSHIP_UPDATED", {
+            championshipPoints: collegeData,
+          })
+          .then(() => {
+            console.log("published");
+          })
+          .catch((err) => {
+            console.log(err);
+          });
 
         return data;
       } catch (error) {

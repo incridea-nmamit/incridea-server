@@ -153,7 +153,7 @@ const main = async () => {
       leaderId: teamMembers[0].id,
       College: {
         connect: {
-          id: teamMembers[0].collegeId ?? undefined,
+          id: 1,
         },
       },
       TeamMembers: {

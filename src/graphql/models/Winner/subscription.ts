@@ -37,7 +37,7 @@ class ChampionshipPointsClass {
 }
 
 const Count = builder.objectType(CountClass, {
-  name: "Counts",
+  name: "Count",
   fields: (t) => ({
     winner: t.exposeInt("WINNER"),
     runner_up: t.exposeInt("RUNNER_UP"),
@@ -46,7 +46,7 @@ const Count = builder.objectType(CountClass, {
 });
 
 const ChampionshipPoints = builder.objectType(ChampionshipPointsClass, {
-  name: "ChampionshipPoint",
+  name: "ChampionshipPoints",
   fields: (t) => ({
     id: t.exposeInt("collegeId"),
     name: t.exposeString("collegeName"),
@@ -71,14 +71,14 @@ builder.queryField("getChampionshipPoints", (t) =>
     },
     smartSubscription: true,
     subscribe: (subscription, root, args, ctx, info) => {
-      subscription.register(`CHAMPIONSHIP_UPDATED`);
+      return ctx.pubsub.asyncIterableIterator("CHAMPIONSHIP_UPDATED");
     },
     resolve: async (root, args, ctx, info) => {
       const user = await ctx.user;
       if (!user) {
         throw new Error("Not authenticated");
       }
-      if (user.role !== "JURY") {
+      if (user.role !== "ADMIN") {
         throw new Error("Not authorized");
       }
       const winners = await prisma.winners.findMany({
@@ -94,7 +94,7 @@ builder.queryField("getChampionshipPoints", (t) =>
 
       const colleges = await prisma.college.findMany();
 
-      const collegePoints = colleges.map((collegeItem) => {
+      return colleges.map((collegeItem) => {
         const collegeData: ChampionshipPointsClass = {
           collegeId: collegeItem.id,
           collegeName: collegeItem.name,
@@ -121,7 +121,6 @@ builder.queryField("getChampionshipPoints", (t) =>
 
         return collegeData;
       });
-      return collegePoints;
     },
   }),
 );

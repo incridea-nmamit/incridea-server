@@ -78,7 +78,7 @@ model College {
     updatedAt DateTime    @updatedAt
     Users     User[]
     type      CollegeType @default(ENGINEERING)
-    championshipPoints Int
+    championshipPoints Int @default(0)
     Teams     Team[]
 }
 
@@ -125,8 +125,8 @@ model Event {
 model Team {
     id                Int    @id @default(autoincrement())
     name              String
-    collegeId         Int?
-    College           College?            @relation(fields: [collegeId], references: [id], onDelete: Cascade)
+    collegeId         Int
+    College           College             @relation(fields: [collegeId], references: [id], onDelete: Cascade)
     createdAt         DateTime            @default(now())
     updatedAt         DateTime            @updatedAt
     eventId           Int
