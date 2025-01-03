@@ -12,6 +12,9 @@ builder.prismaObject("Team", {
     members: t.relation("TeamMembers"),
     confirmed: t.exposeBoolean("confirmed"),
     attended: t.exposeBoolean("attended"),
+    college: t.relation("College", {
+      nullable: true,
+    }),
     leaderId: t.exposeInt("leaderId", {
       nullable: true,
     }),

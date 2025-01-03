@@ -1,4 +1,4 @@
-import { EventCategory, EventType } from "@prisma/client";
+import { EventCategory, EventTier, EventType } from "@prisma/client";
 
 import { builder } from "~/graphql/builder";
 
@@ -73,6 +73,10 @@ const EventUpdateInput = builder.inputType("EventUpdateInput", {
     maxTeams: t.int({ required: false }),
     venue: t.string({ required: false }),
     image: t.string({ required: false }),
+    tier: t.field({
+      type: EventTier,
+      required: false,
+    }),
     category: t.field({
       type: EventCategory,
       required: false,
