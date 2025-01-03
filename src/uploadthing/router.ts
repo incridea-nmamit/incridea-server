@@ -31,6 +31,7 @@ export const uploadRouter = {
       maxFileSize: "4MB",
     },
   })
+    //check
     .middleware(async ({ req, res }) => {
       const user = await authenticateUser(req, res);
       if (!user)
@@ -42,6 +43,25 @@ export const uploadRouter = {
     })
     .onUploadComplete((data) => {
       console.log("easter Egg :", data.file.url);
+    }),
+
+  quizQuestionImgUploader: f({
+    image: {
+      maxFileCount: 1,
+      maxFileSize: "4MB",
+    },
+  })
+    .middleware(async ({ req, res }) => {
+      const user = await authenticateUser(req, res);
+      if (!user)
+        throw new UploadThingError({
+          message: "Unauthorized",
+          code: "FORBIDDEN",
+        });
+      return { userId: user.id };
+    })
+    .onUploadComplete((data) => {
+      console.log("Question Image :", data.file.url);
     }),
 
   idUploader: f({

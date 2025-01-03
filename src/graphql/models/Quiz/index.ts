@@ -23,7 +23,18 @@ builder.prismaObject("Quiz", {
       type: "DateTime",
       nullable: false,
     }),
-    round: t.relation("Round"),
+    updatedAt: t.expose("updatedAt", {
+      type: "DateTime",
+      nullable: false,
+    }),
     questions: t.relation("Questions"),
+    password: t.expose("password", {
+      type: "String",
+      nullable: false,
+    }),
+    quizScores: t.relation("QuizScores"),
+    points: t.exposeInt("points"),
+    qualifyNext: t.exposeInt("qualifyNext"),
+    allowAttempts: t.exposeBoolean("allowAttempts"),
   }),
 });

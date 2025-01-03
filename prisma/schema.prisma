@@ -2,90 +2,90 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 generator pothos {
-    provider = "prisma-pothos-types"
+  provider = "prisma-pothos-types"
 }
 
 datasource db {
-    provider     = "mysql"
-    url          = env("DATABASE_URL")
-    relationMode = "prisma"
+  provider     = "mysql"
+  url          = env("DATABASE_URL")
+  relationMode = "prisma"
 }
 
 model RefreshToken {
-    id          String   @id @unique @default(uuid())
-    hashedToken String   @db.Text
-    userId      Int
-    User        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-    revoked     Boolean  @default(false)
-    createdAt   DateTime @default(now())
-    updatedAt   DateTime @updatedAt
+  id          String   @id @unique @default(uuid())
+  hashedToken String   @db.Text
+  userId      Int
+  User        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  revoked     Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-    @@index([userId])
+  @@index([userId])
 }
 
 model VerificationToken {
-    id        String           @id @unique @default(cuid())
-    userId    Int
-    User      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-    revoked   Boolean          @default(false)
-    createdAt DateTime         @default(now())
-    type      VerificationType @default(EMAIL_VERIFICATION)
+  id        String           @id @unique @default(cuid())
+  userId    Int
+  User      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  revoked   Boolean          @default(false)
+  createdAt DateTime         @default(now())
+  type      VerificationType @default(EMAIL_VERIFICATION)
 
-    @@index([userId])
+  @@index([userId])
 }
 
 model User {
-    id                  Int                   @id @default(autoincrement())
-    name                String
-    email               String                @unique
-    role                Role                  @default(USER)
-    profileImage        String?
-    isVerified          Boolean               @default(false)
-    password            String                @db.Text
-    createdAt           DateTime              @default(now())
-    updatedAt           DateTime              @updatedAt
-    collegeId           Int?                  @default(1)
-    College             College?              @relation(fields: [collegeId], references: [id], onDelete: SetNull)
-    phoneNumber         String?
-    totalXp             Int                   @default(0)
-    UserInHotel         UserInHotel?
-    VerificationToken   VerificationToken[]
-    RefreshTokens       RefreshToken[]
-    PaymentOrders       PaymentOrder[]
-    BranchRep           BranchRep?
-    Organizers          Organizer[]
-    TeamMembers         TeamMember[]
-    Judges              Judge[]
-    Submissions         Submission[]
-    ProniteRegistration ProniteRegistration[]
-    CertificateIssue    CertificateIssue[]
-    notificationObj     Json?
-    XP                  XP[]
+  id                  Int                   @id @default(autoincrement())
+  name                String
+  email               String                @unique
+  role                Role                  @default(USER)
+  profileImage        String?
+  isVerified          Boolean               @default(false)
+  password            String                @db.Text
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  collegeId           Int?                  @default(1)
+  College             College?              @relation(fields: [collegeId], references: [id], onDelete: SetNull)
+  phoneNumber         String?
+  totalXp             Int                   @default(0)
+  UserInHotel         UserInHotel?
+  VerificationToken   VerificationToken[]
+  RefreshTokens       RefreshToken[]
+  PaymentOrders       PaymentOrder[]
+  BranchRep           BranchRep?
+  Organizers          Organizer[]
+  TeamMembers         TeamMember[]
+  Judges              Judge[]
+  Submissions         Submission[]
+  ProniteRegistration ProniteRegistration[]
+  CertificateIssue    CertificateIssue[]
+  notificationObj     Json?
+  XP                  XP[]
 
-    @@index([collegeId])
-    @@index([id])
+  @@index([collegeId])
+  @@index([id])
 }
 
 model College {
-    id        Int         @id @default(autoincrement())
-    name      String
-    details   String?
-    createdAt DateTime    @default(now())
-    updatedAt DateTime    @updatedAt
-    Users     User[]
-    type      CollegeType @default(ENGINEERING)
+  id        Int         @id @default(autoincrement())
+  name      String
+  details   String?
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  Users     User[]
+  type      CollegeType @default(ENGINEERING)
 }
 
 model Branch {
-    id         Int         @id @default(autoincrement())
-    name       String
-    details    String?
-    BranchReps BranchRep[]
-    Event      Event[]
+  id         Int         @id @default(autoincrement())
+  name       String
+  details    String?
+  BranchReps BranchRep[]
+  Event      Event[]
 }
 
 // User many-to-many  Branch
@@ -93,491 +93,471 @@ model Branch {
 // BranchRep userId-BranchID
 
 model Event {
-    id               Int                @id @default(autoincrement())
-    name             String
-    description      String?            @db.Text
-    image            String?
-    createdAt        DateTime           @default(now())
-    updatedAt        DateTime           @updatedAt
-    fees             Int                @default(0)
-    Organizers       Organizer[]
-    eventType        EventType          @default(INDIVIDUAL)
-    venue            String?
-    branchId         Int
-    minTeamSize      Int                @default(1)
-    maxTeamSize      Int                @default(1)
-    maxTeams         Int?
-    published        Boolean            @default(false)
-    Branch           Branch             @relation(fields: [branchId], references: [id], onDelete: Restrict)
-    Teams            Team[]
-    Rounds           Round[]
-    category         EventCategory      @default(TECHNICAL)
-    Winner           Winners[]
-    CertificateIssue CertificateIssue[]
-    Level            Level[]
+  id               Int                @id @default(autoincrement())
+  name             String
+  description      String?            @db.Text
+  image            String?
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  fees             Int                @default(0)
+  Organizers       Organizer[]
+  eventType        EventType          @default(INDIVIDUAL)
+  venue            String?
+  branchId         Int
+  minTeamSize      Int                @default(1)
+  maxTeamSize      Int                @default(1)
+  maxTeams         Int?
+  published        Boolean            @default(false)
+  Branch           Branch             @relation(fields: [branchId], references: [id], onDelete: Restrict)
+  Teams            Team[]
+  Rounds           Round[]
+  category         EventCategory      @default(TECHNICAL)
+  Winner           Winners[]
+  CertificateIssue CertificateIssue[]
+  Level            Level[]
 
-    @@index([branchId])
+  @@index([branchId])
 }
 
 model Team {
-    id   Int    @id @default(autoincrement())
-    name String
+  id   Int    @id @default(autoincrement())
+  name String
 
-    createdAt         DateTime            @default(now())
-    updatedAt         DateTime            @updatedAt
-    eventId           Int
-    Event             Event               @relation(fields: [eventId], references: [id], onDelete: Cascade)
-    roundNo           Int                 @default(1)
-    confirmed         Boolean             @default(false)
-    attended          Boolean             @default(false)
-    TeamMembers       TeamMember[]
-    leaderId          Int?
-    EventPaymentOrder EventPaymentOrder[]
-    Score             Scores[]
-    Winner            Winners?
-    Comments          Comments[]
-    mcqSubmissions    MCQSubmission[]
-    fitbSubmissions   FITBSubmission[]
-    laSubmissions     LASubmission[]
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  eventId           Int
+  Event             Event               @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  roundNo           Int                 @default(1)
+  confirmed         Boolean             @default(false)
+  attended          Boolean             @default(false)
+  TeamMembers       TeamMember[]
+  leaderId          Int?
+  EventPaymentOrder EventPaymentOrder[]
+  Score             Scores[]
+  Winner            Winners?
+  Comments          Comments[]
+  QuizSubmissions   QuizSubmission[]
+  score             Int                 @default(0)
+  QuizScores        QuizScore[]
 
-    @@unique([name, eventId])
-    @@index([eventId, roundNo])
+  @@unique([name, eventId])
+  @@index([eventId, roundNo])
 }
 
 model Round {
-    eventId      Int
-    roundNo      Int        @default(1)
-    Event        Event      @relation(fields: [eventId], references: [id], onDelete: Cascade)
-    completed    Boolean    @default(false)
-    Judges       Judge[]
-    date         DateTime?
-    Criteria     Criteria[]
-    Comments     Comments[]
-    quizId       String?
-    Quiz         Quiz?
-    selectStatus Boolean    @default(false)
+  eventId      Int
+  roundNo      Int        @default(1)
+  Event        Event      @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  completed    Boolean    @default(false)
+  Judges       Judge[]
+  date         DateTime?
+  Criteria     Criteria[]
+  Comments     Comments[]
+  quizId       String?
+  Quiz         Quiz?
+  selectStatus Boolean    @default(false)
 
-    @@id([eventId, roundNo])
-    @@unique([eventId, roundNo])
-    @@index([quizId])
+  @@id([eventId, roundNo])
+  @@unique([eventId, roundNo])
+  @@index([quizId])
 }
 
 model PaymentOrder {
-    id          String      @id @default(cuid())
-    orderId     String      @unique
-    status      Status      @default(PENDING)
-    amount      Int         @default(250)
-    paymentData Json?
-    createdAt   DateTime    @default(now())
-    updatedAt   DateTime    @updatedAt
-    type        PaymentType @default(FEST_REGISTRATION)
-    User        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-    userId      Int
+  id          String      @id @default(cuid())
+  orderId     String      @unique
+  status      Status      @default(PENDING)
+  amount      Int         @default(250)
+  paymentData Json?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  type        PaymentType @default(FEST_REGISTRATION)
+  User        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      Int
 
-    @@index([userId])
+  @@index([userId])
 }
 
 model EventPaymentOrder {
-    id          String   @id @default(cuid())
-    orderId     String   @unique
-    status      Status   @default(PENDING)
-    amount      Int      @default(250)
-    paymentData Json?
-    createdAt   DateTime @default(now())
-    updatedAt   DateTime @updatedAt
-    teamId      Int
-    Team        Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  id          String   @id @default(cuid())
+  orderId     String   @unique
+  status      Status   @default(PENDING)
+  amount      Int      @default(250)
+  paymentData Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  teamId      Int
+  Team        Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
 
-    @@index([teamId])
+  @@index([teamId])
 }
 
 model BranchRep {
-    userId   Int    @unique
-    User     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-    branchId Int
-    Branch   Branch @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  userId   Int    @unique
+  User     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  branchId Int
+  Branch   Branch @relation(fields: [branchId], references: [id], onDelete: Cascade)
 
-    @@index([branchId, userId])
+  @@index([branchId, userId])
 }
 
 model Organizer {
-    userId  Int
-    User    User  @relation(fields: [userId], references: [id], onDelete: Cascade)
-    eventId Int
-    Event   Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  userId  Int
+  User    User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  eventId Int
+  Event   Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
 
-    @@unique([userId, eventId])
-    @@index([eventId, userId])
+  @@unique([userId, eventId])
+  @@index([eventId, userId])
 }
 
 model TeamMember {
-    userId Int
-    User   User @relation(fields: [userId], references: [id], onDelete: Cascade)
-    teamId Int
-    Team   Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  userId Int
+  User   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  teamId Int
+  Team   Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
 
-    @@unique([userId, teamId])
-    @@index([teamId, userId])
+  @@unique([userId, teamId])
+  @@index([teamId, userId])
 }
 
 model Judge {
-    userId   Int        @unique
-    User     User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-    eventId  Int
-    roundNo  Int
-    Round    Round      @relation(fields: [eventId, roundNo], references: [eventId, roundNo], onDelete: Cascade)
-    Scores   Scores[]
-    Comments Comments[]
+  userId   Int        @unique
+  User     User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  eventId  Int
+  roundNo  Int
+  Round    Round      @relation(fields: [eventId, roundNo], references: [eventId, roundNo], onDelete: Cascade)
+  Scores   Scores[]
+  Comments Comments[]
 
-    @@unique([userId, eventId, roundNo])
-    @@index([eventId, roundNo, userId])
+  @@unique([userId, eventId, roundNo])
+  @@index([eventId, roundNo, userId])
 }
 
 model EmailMonitor {
-    count     Int      @default(0)
-    updatedAt DateTime @updatedAt
-    id        Int      @id @default(autoincrement())
+  count     Int      @default(0)
+  updatedAt DateTime @updatedAt
+  id        Int      @id @default(autoincrement())
 }
 
 model Criteria {
-    id      Int          @id @default(autoincrement())
-    name    String
-    eventId Int
-    roundNo Int
-    Round   Round        @relation(fields: [eventId, roundNo], references: [eventId, roundNo], onDelete: Cascade)
-    type    CriteriaType @default(NUMBER)
-    Score   Scores[]
+  id      Int          @id @default(autoincrement())
+  name    String
+  eventId Int
+  roundNo Int
+  Round   Round        @relation(fields: [eventId, roundNo], references: [eventId, roundNo], onDelete: Cascade)
+  type    CriteriaType @default(NUMBER)
+  Score   Scores[]
 
-    @@index([eventId, roundNo])
+  @@index([eventId, roundNo])
 }
 
 model Scores {
-    teamId     Int
-    Team       Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
-    criteriaId Int
-    Criteria   Criteria @relation(fields: [criteriaId], references: [id], onDelete: Cascade)
-    score      String
-    judgeId    Int
-    Judge      Judge    @relation(fields: [judgeId], references: [userId])
+  teamId     Int
+  Team       Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  criteriaId Int
+  Criteria   Criteria @relation(fields: [criteriaId], references: [id], onDelete: Cascade)
+  score      String
+  judgeId    Int
+  Judge      Judge    @relation(fields: [judgeId], references: [userId])
 
-    @@unique([teamId, criteriaId, judgeId])
-    @@index([teamId, criteriaId])
-    @@index([criteriaId])
-    @@index([judgeId])
+  @@unique([teamId, criteriaId, judgeId])
+  @@index([teamId, criteriaId])
+  @@index([criteriaId])
+  @@index([judgeId])
 }
 
 model Comments {
-    teamId  Int
-    Team    Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
-    eventId Int
-    roundNo Int
-    Round   Round  @relation(fields: [eventId, roundNo], references: [eventId, roundNo], onDelete: Cascade)
-    comment String
-    judgeId Int
-    Judge   Judge  @relation(fields: [judgeId], references: [userId])
+  teamId  Int
+  Team    Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  eventId Int
+  roundNo Int
+  Round   Round  @relation(fields: [eventId, roundNo], references: [eventId, roundNo], onDelete: Cascade)
+  comment String
+  judgeId Int
+  Judge   Judge  @relation(fields: [judgeId], references: [userId])
 
-    @@unique([teamId, eventId, roundNo, judgeId])
-    @@index([teamId])
-    @@index([eventId, roundNo])
-    @@index([judgeId])
+  @@unique([teamId, eventId, roundNo, judgeId])
+  @@index([teamId])
+  @@index([eventId, roundNo])
+  @@index([judgeId])
 }
 
 model Winners {
-    id      Int        @id @default(autoincrement())
-    teamId  Int        @unique
-    Team    Team       @relation(fields: [teamId], references: [id], onDelete: Cascade)
-    eventId Int
-    Event   Event      @relation(fields: [eventId], references: [id], onDelete: Cascade)
-    type    WinnerType
-    Level   Level[]
+  id      Int        @id @default(autoincrement())
+  teamId  Int        @unique
+  Team    Team       @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  eventId Int
+  Event   Event      @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  type    WinnerType
+  Level   Level[]
 
-    @@unique([eventId, type])
-    @@index([teamId])
-    @@index([eventId])
+  @@unique([eventId, type])
+  @@index([teamId])
+  @@index([eventId])
 }
 
 model Card {
-    id          Int          @id @default(autoincrement())
-    clue        String
-    day         DayType
-    Submissions Submission[]
+  id          Int          @id @default(autoincrement())
+  clue        String
+  day         DayType
+  Submissions Submission[]
 
-    @@unique([id])
-    @@index([id])
+  @@unique([id])
+  @@index([id])
 }
 
 model Submission {
-    userId    Int
-    User      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-    image     String
-    cardId    Int
-    Card      Card     @relation(fields: [cardId], references: [id], onDelete: Cascade)
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  userId    Int
+  User      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  image     String
+  cardId    Int
+  Card      Card     @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-    @@unique([userId, cardId])
-    @@index([cardId])
-    @@index([userId])
+  @@unique([userId, cardId])
+  @@index([cardId])
+  @@index([userId])
 }
 
 model ProniteRegistration {
-    userId     Int
-    User       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-    proniteDay ProniteDay
-    createdAt  DateTime   @default(now())
+  userId     Int
+  User       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  proniteDay ProniteDay
+  createdAt  DateTime   @default(now())
 
-    @@unique([userId, proniteDay])
-    @@index([userId])
+  @@unique([userId, proniteDay])
+  @@index([userId])
 }
 
 model CertificateIssue {
-    id        Int      @id @default(autoincrement())
-    userId    Int
-    EventId   Int
-    User      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-    Event     Event    @relation(fields: [EventId], references: [id], onDelete: Cascade)
-    issued    Boolean  @default(false)
-    createdAt DateTime @default(now())
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  EventId   Int
+  User      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  Event     Event    @relation(fields: [EventId], references: [id], onDelete: Cascade)
+  issued    Boolean  @default(false)
+  createdAt DateTime @default(now())
 
-    @@index([userId])
-    @@index([EventId])
+  @@index([userId])
+  @@index([EventId])
 }
 
 model Options {
-    id              String           @id @default(cuid())
-    questionId      String
-    Question        Question         @relation(fields: [questionId], references: [id], onDelete: Cascade)
-    value           String
-    isAnswer        Boolean          @default(false)
-    MCQSubmissions  MCQSubmission[]
-    FITBSubmissions FITBSubmission[]
+  id          String           @id @default(cuid())
+  questionId  String
+  Question    Question         @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  value       String
+  isAnswer    Boolean          @default(false)
+  Submissions QuizSubmission[]
 
-    @@index([questionId])
+  @@index([questionId])
 }
 
-model MCQSubmission {
-    id        String   @id @default(cuid())
-    teamId    Int
-    Team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
-    optionId  String
-    Options   Options  @relation(fields: [optionId], references: [id], onDelete: Cascade)
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+model QuizSubmission {
+  id        String   @id @default(cuid())
+  teamId    Int
+  Team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  optionId  String
+  Options   Options  @relation(fields: [optionId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-    @@index([teamId])
-    @@index([optionId])
+  @@index([teamId])
+  @@index([optionId])
+}
+
+model QuizScore {
+  id     String @id @default(cuid())
+  teamId Int
+  Team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  quizId String
+  Quiz   Quiz   @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  score  Int    @default(0)
+
+  @@index([quizId])
+  @@index([teamId])
 }
 
 model Quiz {
-    id            String     @id @default(cuid())
-    roundId       Int        @unique
-    eventId       Int
-    Round         Round      @relation(fields: [eventId, roundId], references: [eventId, roundNo], onDelete: Cascade)
-    name          String
-    description   String?
-    startTime     DateTime
-    endTime       DateTime
-    allowAttempts Boolean    @default(false)
-    password      String?
-    Questions     Question[]
+  id            String     @id @default(cuid())
+  roundId       Int
+  eventId       Int
+  Round         Round      @relation(fields: [eventId, roundId], references: [eventId, roundNo], onDelete: Cascade)
+  name          String
+  description   String?    @db.Text
+  startTime     DateTime
+  endTime       DateTime
+  allowAttempts Boolean    @default(false)
+  points        Int        @default(1)
+  qualifyNext   Int        @default(5)
+  password      String
+  Questions     Question[]
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+    QuizScores    QuizScore[]
 
-    @@unique([eventId, roundId])
-    @@index([roundId])
+  @@unique([eventId, roundId])
+  @@index([roundId])
 }
 
 model Question {
-    id             String         @id @default(cuid())
-    quizId         String
-    Quiz           Quiz           @relation(fields: [quizId], references: [id], onDelete: Cascade)
-    question       String
-    options        Options[]
-    LASubmissions  LASubmission[]
-    points         Int
-    negativePoints Int            @default(0)
-    questionType   QuestionType
-    image          String?
+  id             String    @id @default(cuid())
+  quizId         String
+  Quiz           Quiz      @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  question       String
+  description    String?   @db.Text
+  isCode         Boolean   @default(false)
+  options        Options[]
+  image          String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
-    @@index([quizId])
-}
-
-model FITBSubmission {
-    id        String   @id @default(cuid())
-    teamId    Int
-    Team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
-    optionId  String
-    Options   Options  @relation(fields: [optionId], references: [id], onDelete: Cascade)
-    value     String
-    isRight   Boolean  @default(false)
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-
-    @@index([teamId])
-    @@index([optionId])
-}
-
-model LASubmission {
-    id         String         @id @default(cuid())
-    teamId     Int
-    Team       Team           @relation(fields: [teamId], references: [id], onDelete: Cascade)
-    questionId String
-    Question   Question       @relation(fields: [questionId], references: [id], onDelete: Cascade)
-    value      String
-    isRight    LAAnswerStatus @default(PENDING)
-    createdAt  DateTime       @default(now())
-    updatedAt  DateTime       @updatedAt
-
-    @@index([teamId])
-    @@index([questionId])
+  @@index([quizId])
 }
 
 model Level {
-    id        Int      @id @default(autoincrement())
-    point     Int      @default(0)
-    createdAt DateTime @default(now())
-    EventId   Int?
-    Event     Event?   @relation(fields: [EventId], references: [id], onDelete: Cascade)
-    XP        XP[]
-    winnerId  Int?
-    Winner    Winners? @relation(fields: [winnerId], references: [id], onDelete: SetNull)
+  id        Int      @id @default(autoincrement())
+  point     Int      @default(0)
+  createdAt DateTime @default(now())
+  EventId   Int?
+  Event     Event?   @relation(fields: [EventId], references: [id], onDelete: Cascade)
+  XP        XP[]
+  winnerId  Int?
+  Winner    Winners? @relation(fields: [winnerId], references: [id], onDelete: SetNull)
 
-    @@index([EventId])
-    @@index([winnerId])
+  @@index([EventId])
+  @@index([winnerId])
 }
 
 model XP {
-    id        Int      @id @default(autoincrement())
-    userId    Int
-    User      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-    Level     Level    @relation(fields: [levelId], references: [id], onDelete: Cascade)
-    levelId   Int
-    createdAt DateTime @default(now())
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  User      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  Level     Level    @relation(fields: [levelId], references: [id], onDelete: Cascade)
+  levelId   Int
+  createdAt DateTime @default(now())
 
-    @@unique([userId, levelId])
-    @@index([userId])
-    @@index([levelId])
+  @@unique([userId, levelId])
+  @@index([userId])
+  @@index([levelId])
 }
 
 model Hotel {
-    id          Int           @id @default(autoincrement())
-    name        String        @unique
-    details     String?
-    price       Int
-    createdAt   DateTime      @default(now())
-    updatedAt   DateTime      @updatedAt
-    UserInHotel UserInHotel[]
+  id          Int           @id @default(autoincrement())
+  name        String        @unique
+  details     String?
+  price       Int
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  UserInHotel UserInHotel[]
 }
 
 model UserInHotel {
-    id        Int                        @id @default(autoincrement())
-    userId    Int                        @unique
-    IdCard    String?
-    User      User                       @relation(fields: [userId], references: [id], onDelete: Cascade)
-    hotelId   Int
-    Hotel     Hotel                      @relation(fields: [hotelId], references: [id], onDelete: Cascade)
-    gender    Gender
-    room      String?
-    AC        Boolean                    @default(false)
-    status    AccommodationBookingStatus @default(PENDING)
-    checkIn   DateTime?
-    checkOut  DateTime?
-    createdAt DateTime                   @default(now())
-    updatedAt DateTime                   @updatedAt
+  id        Int                        @id @default(autoincrement())
+  userId    Int                        @unique
+  IdCard    String?
+  User      User                       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  hotelId   Int
+  Hotel     Hotel                      @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+  gender    Gender
+  room      String?
+  AC        Boolean                    @default(false)
+  status    AccommodationBookingStatus @default(PENDING)
+  checkIn   DateTime?
+  checkOut  DateTime?
+  createdAt DateTime                   @default(now())
+  updatedAt DateTime                   @updatedAt
 
-    @@index([userId])
-    @@index([hotelId])
+  @@index([userId])
+  @@index([hotelId])
 }
 
 enum Gender {
-    MALE
-    FEMALE
-    OTHER
+  MALE
+  FEMALE
+  OTHER
 }
 
 enum AccommodationBookingStatus {
-    PENDING
-    CONFIRMED
-    CANCELLED
+  PENDING
+  CONFIRMED
+  CANCELLED
 }
 
 enum ProniteDay {
-    Day1
-    Day2
+  Day1
+  Day2
 }
 
 enum PaymentType {
-    FEST_REGISTRATION
-    EVENT_REGISTRATION
+  FEST_REGISTRATION
+  EVENT_REGISTRATION
 }
 
 enum Role {
-    USER
-    PARTICIPANT
-    ADMIN
-    BRANCH_REP
-    ORGANIZER
-    JUDGE
-    JURY
+  USER
+  PARTICIPANT
+  ADMIN
+  BRANCH_REP
+  ORGANIZER
+  JUDGE
+  JURY
 }
 
 enum Status {
-    PENDING
-    SUCCESS
-    FAILED
+  PENDING
+  SUCCESS
+  FAILED
 }
 
 enum LAAnswerStatus {
-    PENDING
-    TRUE
-    FALSE
+  PENDING
+  TRUE
+  FALSE
 }
 
 // Pothos type not formed
 enum VerificationType {
-    RESET_PASSWORD
-    EMAIL_VERIFICATION
+  RESET_PASSWORD
+  EMAIL_VERIFICATION
 }
 
 enum EventType {
-    INDIVIDUAL
-    TEAM
-    INDIVIDUAL_MULTIPLE_ENTRY
-    TEAM_MULTIPLE_ENTRY
+  INDIVIDUAL
+  TEAM
+  INDIVIDUAL_MULTIPLE_ENTRY
+  TEAM_MULTIPLE_ENTRY
 }
 
 enum EventCategory {
-    TECHNICAL
-    NON_TECHNICAL
-    CORE
-    SPECIAL
+  TECHNICAL
+  NON_TECHNICAL
+  CORE
+  SPECIAL
 }
 
 enum CollegeType {
-    ENGINEERING
-    NON_ENGINEERING
-    OTHER
+  ENGINEERING
+  NON_ENGINEERING
+  OTHER
 }
 
 enum CriteriaType {
-    TEXT
-    NUMBER
-    TIME
+  TEXT
+  NUMBER
+  TIME
 }
 
 enum WinnerType {
-    WINNER
-    RUNNER_UP
-    SECOND_RUNNER_UP
+  WINNER
+  RUNNER_UP
+  SECOND_RUNNER_UP
 }
 
 enum DayType {
-    Day1
-    Day2
-    Day3
-    Day4
-}
-
-enum QuestionType {
-    MCQ
-    FITB
-    LA
+  Day1
+  Day2
+  Day3
+  Day4
 }

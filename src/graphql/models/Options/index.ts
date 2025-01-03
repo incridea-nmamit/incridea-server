@@ -10,7 +10,6 @@ builder.prismaObject("Options", {
       nullable: false,
     }),
     isAnswer: t.exposeBoolean("isAnswer"),
-    MCQSubmissions: t.relation("MCQSubmissions"),
-    FITBSubmissions: t.relation("FITBSubmissions"),
+    QuizSubmissions: t.relation("Submissions"),
   }),
 });

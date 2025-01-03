@@ -17,6 +17,9 @@ builder.prismaObject("Round", {
       nullable: true,
     }),
     judges: t.relation("Judges"),
+    quiz: t.relation("Quiz", {
+      nullable: true,
+    }),
     selectStatus: t.exposeBoolean("selectStatus"),
   }),
 });

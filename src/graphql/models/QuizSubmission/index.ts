@@ -1,6 +1,6 @@
 import { builder } from "~/graphql/builder";
 
-builder.prismaObject("MCQSubmission", {
+builder.prismaObject("QuizSubmission", {
   fields: (t) => ({
     id: t.exposeID("id"),
     teamId: t.exposeID("teamId"),

@@ -14,6 +14,10 @@ builder.queryField("getAllquestions", (t) =>
     },
     resolve: async (query, root, args, ctx, info) => {
       try {
+        const user = await ctx.user;
+
+        if (!user) throw new Error("Not authenticated");
+
         const questions = await ctx.prisma.question.findMany({
           where: {
             quizId: args.quizId,

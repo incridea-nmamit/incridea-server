@@ -1,12 +1,6 @@
-import { QuestionType } from "@prisma/client";
-
 import { builder } from "~/graphql/builder";
 import "~/graphql/models/Question/query";
 import "~/graphql/models/Question/mutations";
-
-builder.enumType(QuestionType, {
-  name: "QuestionType",
-});
 
 builder.prismaObject("Question", {
   fields: (t) => ({
@@ -17,16 +11,22 @@ builder.prismaObject("Question", {
       type: "String",
       nullable: false,
     }),
-    point: t.exposeInt("points"),
-    negativePoint: t.exposeInt("negativePoints"),
+    description: t.expose("description", {
+      type: "String",
+      nullable: true,
+    }),
+    isCode: t.expose("isCode", {
+      type: "Boolean",
+      nullable: false,
+    }),
     image: t.expose("image", {
       type: "String",
       nullable: true,
     }),
-    questionType: t.expose("questionType", {
-      type: QuestionType,
-    }),
     options: t.relation("options"),
-    LASubmissions: t.relation("LASubmissions"),
+    createdAt: t.expose("createdAt", {
+      type: "DateTime",
+      nullable: false,
+    }),
   }),
 });
