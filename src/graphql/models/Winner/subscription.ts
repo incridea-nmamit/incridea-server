@@ -1,5 +1,6 @@
 import { builder } from "~/graphql/builder";
 import { prisma } from "~/utils/db";
+import { checkChampionshipEligibility } from "./utils";
 
 class CountClass {
   WINNER: number;
@@ -15,7 +16,11 @@ class CountClass {
 class ChampionshipPointsClass {
   collegeId: number;
   collegeName: string;
+  isEligible: boolean;
   championshipPoints: number;
+  techCount: number;
+  nonTechCount: number;
+  coreCount: number;
   goldCount: CountClass;
   silverCount: CountClass;
   bronzeCount: CountClass;
@@ -23,11 +28,19 @@ class ChampionshipPointsClass {
     collegeId: number,
     championshipPoints: number,
     collegeName: string,
+    isEligible: boolean,
+    techCount: number,
+    nonTechCount: number,
+    coreCount: number,
     goldCount: CountClass,
     silverCount: CountClass,
     bronzeCount: CountClass,
   ) {
     this.collegeName = collegeName;
+    this.isEligible = isEligible;
+    this.techCount = techCount;
+    this.nonTechCount = nonTechCount;
+    this.coreCount = coreCount;
     this.collegeId = collegeId;
     this.championshipPoints = championshipPoints;
     this.goldCount = goldCount;
@@ -51,6 +64,10 @@ const ChampionshipPoints = builder.objectType(ChampionshipPointsClass, {
     id: t.exposeInt("collegeId"),
     name: t.exposeString("collegeName"),
     championshipPoints: t.exposeInt("championshipPoints"),
+    isEligible: t.exposeBoolean("isEligible"),
+    techCount: t.exposeInt("techCount"),
+    nonTechCount: t.exposeInt("nonTechCount"),
+    coreCount: t.exposeInt("coreCount"),
     goldCount: t.expose("goldCount", {
       type: Count,
     }),
@@ -94,63 +111,52 @@ builder.queryField("getChampionshipPoints", (t) =>
 
       const colleges = await prisma.college.findMany();
 
-      const collegePoints = colleges.map((collegeItem) => {
-        const collegeData: ChampionshipPointsClass = {
-          collegeId: collegeItem.id,
-          collegeName: collegeItem.name,
-          championshipPoints: collegeItem.championshipPoints,
-          goldCount: { WINNER: 0, RUNNER_UP: 0, SECOND_RUNNER_UP: 0 },
-          silverCount: { WINNER: 0, RUNNER_UP: 0, SECOND_RUNNER_UP: 0 },
-          bronzeCount: { WINNER: 0, RUNNER_UP: 0, SECOND_RUNNER_UP: 0 },
-        };
+      const collegePoints = await Promise.all(
+        colleges.map(async (collegeItem) => {
+          const IsEligible = await checkChampionshipEligibility(collegeItem.id);
+          const eachCollegeData: ChampionshipPointsClass = {
+            collegeId: collegeItem.id,
+            collegeName: collegeItem.name,
+            isEligible: IsEligible,
+            techCount: 0,
+            nonTechCount: 0,
+            coreCount: 0,
+            championshipPoints: collegeItem.championshipPoints,
+            goldCount: { WINNER: 0, RUNNER_UP: 0, SECOND_RUNNER_UP: 0 },
+            silverCount: { WINNER: 0, RUNNER_UP: 0, SECOND_RUNNER_UP: 0 },
+            bronzeCount: { WINNER: 0, RUNNER_UP: 0, SECOND_RUNNER_UP: 0 },
+          };
 
-        const collegeWinners = winners.filter(
-          (winner) => winner.Team.College?.id === collegeItem.id,
-        );
+          const collegeWinners = winners.filter(
+            (winner) => winner.Team.College?.id === collegeItem.id,
+          );
 
-        collegeWinners.forEach((winner) => {
-          if (!winner.Event) return;
-          if (winner.Event.tier === "GOLD") {
-            collegeData.goldCount[winner.type]++;
-          } else if (winner.Event.tier === "SILVER") {
-            collegeData.silverCount[winner.type]++;
-          } else if (winner.Event.tier === "BRONZE") {
-            collegeData.bronzeCount[winner.type]++;
-          }
-        });
+          collegeWinners.forEach((winner) => {
+            if (!winner.Event) return;
 
-        return collegeData;
-      });
+            //update tech, nonTech and Core tally
+            if (winner.Event.category === "TECHNICAL") {
+              eachCollegeData.techCount++;
+            } else if (winner.Event.category === "NON_TECHNICAL") {
+              eachCollegeData.nonTechCount++;
+            } else if (winner.Event.category === "CORE") {
+              eachCollegeData.coreCount++;
+            }
+
+            //update Gold, Silver and Bronze tally
+            if (winner.Event.tier === "GOLD") {
+              eachCollegeData.goldCount[winner.type]++;
+            } else if (winner.Event.tier === "SILVER") {
+              eachCollegeData.silverCount[winner.type]++;
+            } else if (winner.Event.tier === "BRONZE") {
+              eachCollegeData.bronzeCount[winner.type]++;
+            }
+          });
+
+          return eachCollegeData;
+        }),
+      );
       return collegePoints;
     },
   }),
 );
-/*
-const data : Object = 
-    {
-        "data": {
-          "collegesWithStats": [
-            {
-              "id": "1",
-              "name": "Engineering College A",
-              "championshipPoints": 120,
-              "goldCount": {
-                "WINNER": 10,
-                "RUNNER_UP": 2,
-                "SECOND_RUNNER_UP": 3
-              },
-              "silverCount": {
-                "WINNER": 0,
-                "RUNNER_UP": 1,
-                "SECOND_RUNNER_UP": 3
-              },
-              "bronzeCount": {
-                "WINNER": 0,
-                "RUNNER_UP": 1,
-                "SECOND_RUNNER_UP": 3
-              }
-            }
-          ]
-        }
-      }
-*/

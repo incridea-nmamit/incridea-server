@@ -1,4 +1,4 @@
-import { EventCategory, EventType } from "@prisma/client";
+import { EventCategory, EventTier, EventType } from "@prisma/client";
 
 import { builder } from "~/graphql/builder";
 import "~/graphql/models/Event/mutation";
@@ -10,6 +10,10 @@ builder.enumType(EventType, {
 
 builder.enumType(EventCategory, {
   name: "EventCategory",
+});
+
+builder.enumType(EventTier, {
+  name: "EventTier",
 });
 
 builder.prismaObject("Event", {
@@ -28,6 +32,9 @@ builder.prismaObject("Event", {
     image: t.expose("image", {
       type: "String",
       nullable: true,
+    }),
+    tier: t.expose("tier", {
+      type: EventTier,
     }),
     branch: t.relation("Branch"),
     published: t.exposeBoolean("published"),
