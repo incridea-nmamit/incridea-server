@@ -78,7 +78,7 @@ model College {
     updatedAt DateTime    @updatedAt
     Users     User[]
     type      CollegeType @default(ENGINEERING)
-    championshipPoints Int
+    championshipPoints Int @default(0)
     Teams     Team[]
 }
 

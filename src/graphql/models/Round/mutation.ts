@@ -138,6 +138,9 @@ builder.mutationField("completeRound", (t) =>
         },
         include: {
           Judges: true,
+          Event: {
+            include: { Rounds: true },
+          },
         },
       });
       if (!round) {
@@ -165,6 +168,8 @@ builder.mutationField("completeRound", (t) =>
           roundNo: args.roundNo,
         },
       );
+      if (round.Event.Rounds.length - 1 === args.roundNo)
+        await ctx.pubsub.publish("CHAMPIONSHIP_UPDATED", data);
       return data;
     },
   }),
