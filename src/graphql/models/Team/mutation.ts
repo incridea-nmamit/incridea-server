@@ -414,9 +414,10 @@ builder.mutationField("removeTeamMember", (t) =>
       });
       if (!team) throw new Error("Team not found");
 
-      if (
-        team.TeamMembers.find((member) => member.userId === Number(args.userId))
-      )
+      const memberInTeam = team.TeamMembers.find(
+        (member) => member.userId === Number(args.userId),
+      );
+      if (memberInTeam === undefined)
         throw new Error("User does not belong to this team");
 
       if (!team.leaderId) throw new Error("The leader does not exist");
