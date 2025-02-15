@@ -59,7 +59,7 @@ const CONSTANT = {
     } as { [key in EventTier]: { [key in WinnerType]: number } },
   },
   PEOPLE_WHO_DONT_DESERVE_TO_BE_IN_PRONITE: [466] as number[],
-  ID_OF_PRONITE_SCANNING_USER: 5181,
+  ID_OF_PRONITE_SCANNING_USER: 669,
   PRONITE: {
     DAY_1: new Date("28 February 2025 00:00 GMT+0530"),
     DAY_2: new Date("01 March 2025 00:00 GMT+0530"),

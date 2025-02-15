@@ -415,7 +415,7 @@ builder.mutationField("removeTeamMember", (t) =>
       if (!team) throw new Error("Team not found");
 
       if (
-        team.TeamMembers.find((member) => member.userId === Number(args.userId))
+        !team.TeamMembers.find((member) => member.userId === Number(args.userId))
       )
         throw new Error("User does not belong to this team");
 
