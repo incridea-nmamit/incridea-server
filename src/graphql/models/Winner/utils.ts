@@ -1,7 +1,7 @@
 import { CONSTANT } from "~/constants";
 import { prisma } from "~/utils/db";
 const getChampionshipEligibilityForAllColleges = async (): Promise<
-  Map<number, { isEligible: boolean; name: string; championshipPoints: number }>
+  Map<number, { isEligible: boolean; name: string; championshipPoints: number; techLastRound: number; nonTechLastRound: number }>
 > => {
   // Get the final round number for each event
   const finalRounds = await prisma.round.groupBy({
@@ -19,10 +19,9 @@ const getChampionshipEligibilityForAllColleges = async (): Promise<
     where: {
       Event: {
         published: true,
-        OR: [
-          { category: { in: ["TECHNICAL", "NON_TECHNICAL"] } },
-          { id: CONSTANT.CORE_TECHNICAL_EVENT_ID },
-        ],
+        category: { 
+          in: ["TECHNICAL", "NON_TECHNICAL", "CORE"] 
+        },
       },
     },
     select: {
@@ -53,7 +52,7 @@ const getChampionshipEligibilityForAllColleges = async (): Promise<
     }
   >();
 
-  // iterate over all teams of tech-not tech events
+  // iterate over all teams
   allTeams.forEach((team) => {
     const { TeamMembers, Event, eventId, roundNo } = team;
 
@@ -82,11 +81,9 @@ const getChampionshipEligibilityForAllColleges = async (): Promise<
       const collegeEventCounts = collegeParticipationMap.get(collegeId)!;
 
       // Count each event only once per college
-      if (Event.id === CONSTANT.CORE_TECHNICAL_EVENT_ID) {
+        if (Event.category === "TECHNICAL" || Event.id === CONSTANT.CORE_TECHNICAL_EVENT_ID) {
         collegeEventCounts.tech.add(Event.id);
-      } else if (Event.category === "TECHNICAL") {
-        collegeEventCounts.tech.add(Event.id);
-      } else if (Event.category === "NON_TECHNICAL") {
+      } else if (Event.category === "NON_TECHNICAL" || (Event.id !== CONSTANT.CORE_TECHNICAL_EVENT_ID && Event.category === "CORE")) {
         collegeEventCounts.nonTech.add(Event.id);
       }
     });
@@ -104,7 +101,7 @@ const getChampionshipEligibilityForAllColleges = async (): Promise<
   // Determine eligibility for each college
   const eligibilityMap = new Map<
     number,
-    { isEligible: boolean; name: string; championshipPoints: number }
+    { isEligible: boolean; name: string; championshipPoints: number; techLastRound: number; nonTechLastRound: number }
   >();
 
   colleges.forEach((college) => {
@@ -117,6 +114,8 @@ const getChampionshipEligibilityForAllColleges = async (): Promise<
       isEligible: techCount >= 3 && nonTechCount >= 2,
       name: college.name,
       championshipPoints: college.championshipPoints,
+      techLastRound: techCount,
+      nonTechLastRound: nonTechCount,
     });
   });
   return eligibilityMap;

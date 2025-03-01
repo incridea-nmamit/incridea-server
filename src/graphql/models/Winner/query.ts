@@ -73,6 +73,8 @@ class ChampionshipPointsClass {
   championshipPoints: number;
   techCount: number;
   nonTechCount: number;
+  techLastRound: number;
+  nonTechLastRound: number;
   coreCount: number;
   diamondCount: CountClass;
   goldCount: CountClass;
@@ -87,6 +89,8 @@ class ChampionshipPointsClass {
     techCount: number,
     nonTechCount: number,
     coreCount: number,
+    techLastRound: number,
+    nonTechLastRound: number,
     goldCount: CountClass,
     diamondCount: CountClass,
     silverCount: CountClass,
@@ -100,6 +104,8 @@ class ChampionshipPointsClass {
     this.techCount = techCount;
     this.nonTechCount = nonTechCount;
     this.coreCount = coreCount;
+    this.techLastRound = techLastRound;
+    this.nonTechLastRound = nonTechLastRound;
     this.goldCount = goldCount;
     this.silverCount = silverCount;
     this.bronzeCount = bronzeCount;
@@ -125,6 +131,8 @@ const ChampionshipPoints = builder.objectType(ChampionshipPointsClass, {
     techCount: t.exposeInt("techCount"),
     nonTechCount: t.exposeInt("nonTechCount"),
     coreCount: t.exposeInt("coreCount"),
+    techLastRound: t.exposeInt("techLastRound"),
+    nonTechLastRound: t.exposeInt("nonTechLastRound"),
     diamondCount: t.expose("diamondCount", {
       type: Count,
     }),
@@ -192,7 +200,7 @@ builder.queryField("getChampionshipLeaderboard", (t) =>
       });
 
       const collegePoints = Array.from(eligibilityMap.entries()).map(
-        ([collegeId, { isEligible, name, championshipPoints }]) =>
+        ([collegeId, { isEligible, name, championshipPoints, techLastRound, nonTechLastRound }]) =>
           new ChampionshipPointsClass(
             collegeId,
             isEligible,
@@ -201,6 +209,8 @@ builder.queryField("getChampionshipLeaderboard", (t) =>
             0,
             0,
             0,
+            techLastRound,
+            nonTechLastRound,
             new CountClass(0, 0, 0),
             new CountClass(0, 0, 0),
             new CountClass(0, 0, 0),
