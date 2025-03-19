@@ -22,7 +22,7 @@
     "incremental": true,
 
     /* Build config */
-    "outDir": "./build",
+    "outDir": "./dist",
 
     /* Path Aliases */
     "baseUrl": ".",

@@ -14,7 +14,7 @@
     "dev": "tsx watch src/index.ts",
     "type": "tsc --noEmit",
     "start": "NODE_ENV=production tsx dist/src/index.js",
-    "build": "prisma generate && tsx src/env.ts && eslint --cache . && tsc && cp -r src/templates build/src",
+    "build": "prisma generate && tsx src/env.ts && eslint --cache . && tsc && cp -r src/templates dist/src",
     "lint": "eslint --cache .",
     "lint:fix": "eslint --fix --cache .",
     "postinstall": "prisma generate",
